@@ -13,6 +13,7 @@ import { registerSpecCommand } from '../commands/spec.js';
 import { ChangeCommand } from '../commands/change.js';
 import { ValidateCommand } from '../commands/validate.js';
 import { ShowCommand } from '../commands/show.js';
+import { isSupportedLanguage, getLocalizedMessages, formatMessage } from '../core/localization.js';
 
 const program = new Command();
 const require = createRequire(import.meta.url);
@@ -45,6 +46,14 @@ program
   .option('--lang <language>', 'Alias for --language')
   .action(async (targetPath = '.', options?: { tools?: string; language?: string; lang?: string }) => {
     try {
+      // Validate language option
+      const language = options?.lang || options?.language || 'en';
+      if (!isSupportedLanguage(language)) {
+        const messages = getLocalizedMessages('en');
+        const errorMessage = formatMessage(messages.errors.unsupportedLanguage, { language });
+        throw new Error(errorMessage);
+      }
+
       // Validate that the path is a valid directory
       const resolvedPath = path.resolve(targetPath);
       
@@ -66,7 +75,7 @@ program
       
       const initCommand = new InitCommand({
         tools: options?.tools,
-        language: options?.lang || options?.language,
+        language,
       });
       await initCommand.execute(targetPath);
     } catch (error) {
@@ -82,6 +91,13 @@ program
   .option('--language <language>', 'Set language for templates (en, zh-CN)')
   .action(async (targetPath = '.', options?: { language?: string }) => {
     try {
+      // Validate language option if provided
+      if (options?.language && !isSupportedLanguage(options.language)) {
+        const messages = getLocalizedMessages('en');
+        const errorMessage = formatMessage(messages.errors.unsupportedLanguage, { language: options.language });
+        throw new Error(errorMessage);
+      }
+
       const resolvedPath = path.resolve(targetPath);
       const updateCommand = new UpdateCommand();
       await updateCommand.execute(resolvedPath, { language: options?.language });

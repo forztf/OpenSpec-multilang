@@ -382,24 +382,24 @@ type InitCommandOptions = {
 export class InitCommand {
   private readonly prompt: ToolSelectionPrompt;
   private readonly toolsArg?: string;
-  private readonly language: SupportedLanguage;
-  private readonly messages: ReturnType<typeof getLocalizedMessages>;
+  private language: SupportedLanguage;
+  private messages: ReturnType<typeof getLocalizedMessages>;
 
   constructor(options: InitCommandOptions = {}) {
     this.prompt = options.prompt ?? ((config) => toolSelectionWizard(config));
     this.toolsArg = options.tools;
     
     // 验证语言选项
-    const language = options.language ?? 'en';
-    if (!isSupportedLanguage(language)) {
+    const language = options.language;
+    if (language && !isSupportedLanguage(language)) {
       const errorMessage = formatMessage(
         getLocalizedMessages('en').errors.unsupportedLanguage,
         { language }
       );
       throw new Error(errorMessage);
     }
-    this.language = language;
-    this.messages = getLocalizedMessages(language);
+    this.language = (language as SupportedLanguage) || 'en';
+    this.messages = getLocalizedMessages(this.language);
   }
 
   async execute(targetPath: string): Promise<void> {
@@ -437,24 +437,28 @@ export class InitCommand {
     // Step 1: Create directory structure
     if (!extendMode) {
       const structureSpinner = this.startSpinner(
-        'Creating OpenSpec structure...'
+        this.language === 'zh-CN' ? '正在创建 OpenSpec 结构...' : 'Creating OpenSpec structure...'
       );
       await this.createDirectoryStructure(openspecPath);
       await this.generateFiles(openspecPath, config);
       structureSpinner.stopAndPersist({
         symbol: PALETTE.white('▌'),
-        text: PALETTE.white('OpenSpec structure created'),
+        text: PALETTE.white(this.language === 'zh-CN' ? 'OpenSpec 结构已创建' : 'OpenSpec structure created'),
       });
     } else {
       ora({ stream: process.stdout }).info(
         PALETTE.midGray(
-          'ℹ OpenSpec already initialized. Skipping base scaffolding.'
+          this.language === 'zh-CN' 
+            ? 'ℹ OpenSpec 已初始化。跳过基础脚手架。'
+            : 'ℹ OpenSpec already initialized. Skipping base scaffolding.'
         )
       );
     }
 
     // Step 2: Configure AI tools
-    const toolSpinner = this.startSpinner('Configuring AI tools...');
+    const toolSpinner = this.startSpinner(
+      this.language === 'zh-CN' ? '正在配置 AI 工具...' : 'Configuring AI tools...'
+    );
     const rootStubStatus = await this.configureAITools(
       projectPath,
       openspecDir,
@@ -462,7 +466,7 @@ export class InitCommand {
     );
     toolSpinner.stopAndPersist({
       symbol: PALETTE.white('▌'),
-      text: PALETTE.white('AI tools configured'),
+      text: PALETTE.white(this.language === 'zh-CN' ? 'AI 工具已配置' : 'AI tools configured'),
     });
 
     // Success message
@@ -494,6 +498,12 @@ export class InitCommand {
     existingTools: Record<string, boolean>,
     extendMode: boolean
   ): Promise<OpenSpecConfig> {
+    // Only prompt for language selection if no language was provided via CLI
+    // and we're not in a test environment (where language should be explicitly set)
+    if (!this.language && process.env.NODE_ENV !== 'test') {
+      await this.promptForLanguageSelection();
+    }
+    
     const selectedTools = await this.getSelectedTools(existingTools, extendMode);
     return { aiTools: selectedTools };
   }
@@ -574,6 +584,31 @@ export class InitCommand {
     return deduped;
   }
 
+  private async promptForLanguageSelection(): Promise<void> {
+    const { select } = await import('@inquirer/prompts');
+    
+    const languageChoice = await select({
+      message: 'Select your preferred language / 选择您的首选语言:',
+      choices: [
+        {
+          name: 'English',
+          value: 'en',
+          description: 'Use English templates and messages'
+        },
+        {
+          name: '中文 (Chinese)',
+          value: 'zh-CN',
+          description: '使用中文模板和消息'
+        }
+      ],
+      default: 'en'
+    });
+
+    // Update the language and messages
+    this.language = languageChoice as SupportedLanguage;
+    this.messages = getLocalizedMessages(languageChoice as SupportedLanguage);
+  }
+
   private async promptForAITools(
     existingTools: Record<string, boolean>,
     extendMode: boolean
@@ -581,8 +616,8 @@ export class InitCommand {
     const availableTools = AI_TOOLS.filter((tool) => tool.available);
 
     const baseMessage = extendMode
-      ? 'Which natively supported AI tools would you like to add or refresh?'
-      : 'Which natively supported AI tools do you use?';
+      ? formatMessage(this.messages.init.selectToolsExtend)
+      : formatMessage(this.messages.init.selectTools);
     const initialNativeSelection = extendMode
       ? availableTools
           .filter((tool) => existingTools[tool.value])

@@ -19,6 +19,8 @@ export interface LocalizedMessages {
     rootStubCreated: string;
     rootStubUpdated: string;
     updateCommand: string;
+    selectTools: string;
+    selectToolsExtend: string;
     nextSteps: {
       title: string;
       populateContext: {
@@ -60,6 +62,8 @@ const messages: Record<SupportedLanguage, LocalizedMessages> = {
       rootStubCreated: 'Root AGENTS.md stub created for other assistants',
       rootStubUpdated: 'Root AGENTS.md stub refreshed for other assistants',
       updateCommand: 'Use `openspec update` to refresh shared OpenSpec instructions in the future.',
+      selectTools: 'Which natively supported AI tools do you use?',
+      selectToolsExtend: 'Which natively supported AI tools would you like to add or refresh?',
       nextSteps: {
         title: 'Next steps - Copy these prompts to {toolName}:',
         populateContext: {
@@ -99,6 +103,8 @@ const messages: Record<SupportedLanguage, LocalizedMessages> = {
       rootStubCreated: '已为其他助手创建根 AGENTS.md 存根',
       rootStubUpdated: '已为其他助手刷新根 AGENTS.md 存根',
       updateCommand: '使用 `openspec update` 命令来刷新共享的 OpenSpec 指令。',
+      selectTools: '您使用哪些原生支持的 AI 工具？',
+      selectToolsExtend: '您想要添加或刷新哪些原生支持的 AI 工具？',
       nextSteps: {
         title: '下一步 - 将这些提示复制到 {toolName}：',
         populateContext: {

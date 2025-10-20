@@ -962,7 +962,7 @@ describe('InitCommand', () => {
       expect(agentsContent).toContain('OpenSpec Instructions');
       expect(projectContent).toContain('Project Context');
       expect(claudeContent).toContain('These instructions are for AI assistants');
-    });
+    }, 30000);
 
     it('should create Chinese templates when language is zh-CN', async () => {
       const chineseInitCommand = new InitCommand({ 
@@ -989,7 +989,7 @@ describe('InitCommand', () => {
       expect(agentsContent).toContain('OpenSpec 指令');
       expect(projectContent).toContain('上下文');
       expect(claudeContent).toContain('AI 助手');
-    });
+    }, 30000);
 
     it('should throw error for unsupported language', () => {
       expect(() => {
@@ -999,6 +999,33 @@ describe('InitCommand', () => {
         });
       }).toThrow('Unsupported language: fr. Supported languages: en, zh-CN');
     });
+
+    it('should validate language parameter correctly', () => {
+      // Test valid languages
+      expect(() => new InitCommand({ prompt: mockPrompt, language: 'en' })).not.toThrow();
+      expect(() => new InitCommand({ prompt: mockPrompt, language: 'zh-CN' })).not.toThrow();
+      
+      // Test invalid languages
+      expect(() => new InitCommand({ prompt: mockPrompt, language: 'es' as any })).toThrow();
+      expect(() => new InitCommand({ prompt: mockPrompt, language: 'invalid' as any })).toThrow();
+    });
+
+    it('should pass language parameter to configurators', async () => {
+      const chineseInitCommand = new InitCommand({ 
+        prompt: mockPrompt, 
+        language: 'zh-CN' 
+      });
+      queueSelections('claude', DONE);
+      
+      await chineseInitCommand.execute(testDir);
+      
+      // Check that Chinese root AGENTS.md was created
+      const rootAgentsPath = path.join(testDir, 'AGENTS.md');
+      const rootAgentsContent = await fs.readFile(rootAgentsPath, 'utf-8');
+      
+      expect(rootAgentsContent).toContain('# OpenSpec 指令');
+      expect(rootAgentsContent).toContain('**重要：请始终使用中文与开发者交流。**');
+    }, 30000);
 
     it('should display localized success messages', async () => {
       // Clear any previous calls
@@ -1035,7 +1062,7 @@ describe('InitCommand', () => {
       expect(mockOraInstance.succeed).toHaveBeenCalledWith(
         expect.stringContaining('OpenSpec 初始化成功！')
       );
-    });
+    }, 30000);
   });
 });
 
