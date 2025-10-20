@@ -3,10 +3,16 @@ import { FileSystemUtils } from '../utils/file-system.js';
 import { OPENSPEC_DIR_NAME } from './config.js';
 import { ToolRegistry } from './configurators/registry.js';
 import { SlashCommandRegistry } from './configurators/slash/registry.js';
-import { agentsTemplate } from './templates/agents-template.js';
+import { TemplateManager } from './templates/index.js';
+import { LanguageDetector, type SupportedLanguage } from '../utils/language-detector.js';
+
+export interface UpdateCommandOptions {
+  /** 指定的语言 */
+  language?: string;
+}
 
 export class UpdateCommand {
-  async execute(projectPath: string): Promise<void> {
+  async execute(projectPath: string, options: UpdateCommandOptions = {}): Promise<void> {
     const resolvedProjectPath = path.resolve(projectPath);
     const openspecDirName = OPENSPEC_DIR_NAME;
     const openspecPath = path.join(resolvedProjectPath, openspecDirName);
@@ -16,12 +22,25 @@ export class UpdateCommand {
       throw new Error(`No OpenSpec directory found. Run 'openspec init' first.`);
     }
 
-    // 2. Update AGENTS.md (full replacement)
+    // 2. Detect project language
+    const languageResult = LanguageDetector.detectLanguage({
+      cliLanguage: options.language,
+      projectPath: resolvedProjectPath,
+      enableEnvDetection: true
+    });
+
+    // Only log language detection in verbose mode or when explicitly set
+    if (options.language || process.env.OPENSPEC_VERBOSE) {
+      console.log(`Language detection: ${languageResult.language} (${languageResult.source}${languageResult.details ? ': ' + languageResult.details : ''})`);
+    }
+
+    // 3. Update AGENTS.md with language-appropriate template
     const agentsPath = path.join(openspecPath, 'AGENTS.md');
+    const agentsTemplate = TemplateManager.getAgentsStandardTemplate(languageResult.language);
 
     await FileSystemUtils.writeFile(agentsPath, agentsTemplate);
 
-    // 3. Update existing AI tool configuration files only
+    // 4. Update existing AI tool configuration files only
     const configurators = ToolRegistry.getAll();
     const slashConfigurators = SlashCommandRegistry.getAll();
     const updatedFiles: string[] = [];

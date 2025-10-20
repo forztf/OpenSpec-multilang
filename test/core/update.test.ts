@@ -26,6 +26,9 @@ describe('UpdateCommand', () => {
     // Route Codex global directory into the test sandbox
     prevCodexHome = process.env.CODEX_HOME;
     process.env.CODEX_HOME = path.join(testDir, '.codex');
+
+    // Clear LANG environment variable to ensure English templates in tests
+    delete process.env.LANG;
   });
 
   afterEach(async () => {

@@ -78,11 +78,12 @@ program
 program
   .command('update [path]')
   .description('Update OpenSpec instruction files')
-  .action(async (targetPath = '.') => {
+  .option('--language <language>', 'Set language for templates (en, zh-CN)')
+  .action(async (targetPath = '.', options?: { language?: string }) => {
     try {
       const resolvedPath = path.resolve(targetPath);
       const updateCommand = new UpdateCommand();
-      await updateCommand.execute(resolvedPath);
+      await updateCommand.execute(resolvedPath, { language: options?.language });
     } catch (error) {
       console.log(); // Empty line for spacing
       ora().fail(`Error: ${(error as Error).message}`);
