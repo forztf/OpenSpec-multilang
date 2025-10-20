@@ -21,6 +21,15 @@ export interface LocalizedMessages {
     updateCommand: string;
     selectTools: string;
     selectToolsExtend: string;
+    languageSelection: {
+      prompt: string;
+      english: string;
+      chinese: string;
+    };
+    spinner: {
+      creating: string;
+      created: string;
+    };
     nextSteps: {
       title: string;
       populateContext: {
@@ -43,6 +52,7 @@ export interface LocalizedMessages {
   };
   errors: {
     unsupportedLanguage: string;
+    invalidLanguageOption: string;
   };
 }
 
@@ -64,6 +74,15 @@ const messages: Record<SupportedLanguage, LocalizedMessages> = {
       updateCommand: 'Use `openspec update` to refresh shared OpenSpec instructions in the future.',
       selectTools: 'Which natively supported AI tools do you use?',
       selectToolsExtend: 'Which natively supported AI tools would you like to add or refresh?',
+      languageSelection: {
+        prompt: 'Which language would you like to use for OpenSpec templates?',
+        english: 'English',
+        chinese: 'Chinese (中文)',
+      },
+      spinner: {
+        creating: 'Creating OpenSpec structure...',
+        created: 'OpenSpec structure created',
+      },
       nextSteps: {
         title: 'Next steps - Copy these prompts to {toolName}:',
         populateContext: {
@@ -86,6 +105,7 @@ const messages: Record<SupportedLanguage, LocalizedMessages> = {
     },
     errors: {
       unsupportedLanguage: 'Unsupported language: {language}. Supported languages: en, zh-CN',
+      invalidLanguageOption: 'Invalid language option: {language}. Use --language en or --language zh-CN',
     },
   },
   'zh-CN': {
@@ -105,6 +125,15 @@ const messages: Record<SupportedLanguage, LocalizedMessages> = {
       updateCommand: '使用 `openspec update` 命令来刷新共享的 OpenSpec 指令。',
       selectTools: '您使用哪些原生支持的 AI 工具？',
       selectToolsExtend: '您想要添加或刷新哪些原生支持的 AI 工具？',
+      languageSelection: {
+        prompt: '您希望使用哪种语言的 OpenSpec 模板？',
+        english: 'English (英文)',
+        chinese: 'Chinese (中文)',
+      },
+      spinner: {
+        creating: '正在创建 OpenSpec 结构...',
+        created: 'OpenSpec 结构已创建',
+      },
       nextSteps: {
         title: '下一步 - 将这些提示复制到 {toolName}：',
         populateContext: {
@@ -127,36 +156,30 @@ const messages: Record<SupportedLanguage, LocalizedMessages> = {
     },
     errors: {
       unsupportedLanguage: '不支持的语言：{language}。支持的语言：en, zh-CN',
+      invalidLanguageOption: '无效的语言选项：{language}。请使用 --language en 或 --language zh-CN',
     },
   },
 };
 
 /**
  * 获取指定语言的本地化消息
- * @param language 语言代码
- * @returns 本地化消息对象
  */
 export function getLocalizedMessages(language: SupportedLanguage): LocalizedMessages {
-  return messages[language] || messages.en;
+  return messages[language];
 }
 
 /**
- * 格式化本地化消息，支持参数替换
- * @param template 消息模板
- * @param params 参数对象
- * @returns 格式化后的消息
+ * 格式化消息模板，替换占位符
  */
 export function formatMessage(template: string, params: Record<string, string> = {}): string {
   return Object.entries(params).reduce(
-    (message, [key, value]) => message.replace(`{${key}}`, value),
+    (result, [key, value]) => result.replace(new RegExp(`\\{${key}\\}`, 'g'), value),
     template
   );
 }
 
 /**
- * 验证语言是否受支持
- * @param language 语言代码
- * @returns 是否受支持
+ * 检查是否为支持的语言
  */
 export function isSupportedLanguage(language: string): language is SupportedLanguage {
   return ['en', 'zh-CN'].includes(language);

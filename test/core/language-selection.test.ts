@@ -64,11 +64,20 @@ describe('Language Selection Feature', () => {
       
       // Verify language selection prompt was called
       expect(mockSelect).toHaveBeenCalledWith({
-        message: 'Please select your preferred language / 请选择您的首选语言:',
+        message: 'Which language would you like to use for OpenSpec templates?',
         choices: [
-          { name: 'English', value: 'en' },
-          { name: '中文', value: 'zh-CN' }
-        ]
+          { 
+            name: 'English', 
+            value: 'en',
+            description: 'Use English templates and messages'
+          },
+          { 
+            name: 'Chinese (中文)', 
+            value: 'zh-CN',
+            description: '使用中文模板和消息'
+          }
+        ],
+        default: 'en'
       });
       
       // Verify Chinese templates were generated
@@ -111,7 +120,7 @@ describe('Language Selection Feature', () => {
       const rootAgentsContent = await fs.readFile(rootAgentsPath, 'utf-8');
       
       expect(agentsContent).toContain('OpenSpec 指令');
-      expect(projectContent).toContain('上下文');
+      expect(projectContent).toContain('项目上下文');
       expect(rootAgentsContent).toContain('OpenSpec 指令');
       expect(rootAgentsContent).toContain('**重要：请始终使用中文与开发者交流。**');
     });
@@ -147,11 +156,20 @@ describe('Language Selection Feature', () => {
       await initCommand.execute(testDir);
       
       expect(mockSelect).toHaveBeenCalledWith({
-        message: 'Please select your preferred language / 请选择您的首选语言:',
+        message: 'Which language would you like to use for OpenSpec templates?',
         choices: [
-          { name: 'English', value: 'en' },
-          { name: '中文', value: 'zh-CN' }
-        ]
+          { 
+            name: 'English', 
+            value: 'en',
+            description: 'Use English templates and messages'
+          },
+          { 
+            name: 'Chinese (中文)', 
+            value: 'zh-CN',
+            description: '使用中文模板和消息'
+          }
+        ],
+        default: 'en'
       });
     });
 
@@ -163,8 +181,16 @@ describe('Language Selection Feature', () => {
       
       const call = mockSelect.mock.calls[0][0];
       expect(call.choices).toEqual([
-        { name: 'English', value: 'en' },
-        { name: '中文', value: 'zh-CN' }
+        { 
+          name: 'English', 
+          value: 'en',
+          description: 'Use English templates and messages'
+        },
+        { 
+          name: 'Chinese (中文)', 
+          value: 'zh-CN',
+          description: '使用中文模板和消息'
+        }
       ]);
     });
   });
@@ -178,7 +204,7 @@ describe('Language Selection Feature', () => {
       
       // Verify success message is in Chinese
       expect(mockOraInstance.succeed).toHaveBeenCalledWith(
-        expect.stringContaining('OpenSpec 初始化成功！')
+        expect.stringContaining('OpenSpec 已成功初始化')
       );
     });
 
@@ -198,7 +224,7 @@ describe('Language Selection Feature', () => {
       for (const filePath of files) {
         const content = await fs.readFile(filePath, 'utf-8');
         // All files should contain Chinese content
-        expect(content).toMatch(/[\u4e00-\u9fff]/); // Contains Chinese characters
+        expect(content).toContain('OpenSpec 指令'); // Contains Chinese content
       }
     });
   });

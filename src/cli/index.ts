@@ -50,8 +50,15 @@ program
       const language = options?.lang || options?.language || 'en';
       if (!isSupportedLanguage(language)) {
         const messages = getLocalizedMessages('en');
-        const errorMessage = formatMessage(messages.errors.unsupportedLanguage, { language });
-        throw new Error(errorMessage);
+        const errorMessage = formatMessage(messages.errors.invalidLanguageOption, { language });
+        console.error(`\n❌ ${errorMessage}`);
+        console.error(`\n💡 Available languages:`);
+        console.error(`   • en      - English`);
+        console.error(`   • zh-CN   - Chinese (中文)`);
+        console.error(`\n📖 Example usage:`);
+        console.error(`   openspec init --language en`);
+        console.error(`   openspec init --lang zh-CN`);
+        process.exit(1);
       }
 
       // Validate that the path is a valid directory
@@ -94,8 +101,15 @@ program
       // Validate language option if provided
       if (options?.language && !isSupportedLanguage(options.language)) {
         const messages = getLocalizedMessages('en');
-        const errorMessage = formatMessage(messages.errors.unsupportedLanguage, { language: options.language });
-        throw new Error(errorMessage);
+        const errorMessage = formatMessage(messages.errors.invalidLanguageOption, { language: options.language });
+        console.error(`\n❌ ${errorMessage}`);
+        console.error(`\n💡 Available languages:`);
+        console.error(`   • en      - English`);
+        console.error(`   • zh-CN   - Chinese (中文)`);
+        console.error(`\n📖 Example usage:`);
+        console.error(`   openspec update --language en`);
+        console.error(`   openspec update --language zh-CN`);
+        process.exit(1);
       }
 
       const resolvedPath = path.resolve(targetPath);

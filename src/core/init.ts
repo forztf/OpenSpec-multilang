@@ -437,27 +437,25 @@ export class InitCommand {
     // Step 1: Create directory structure
     if (!extendMode) {
       const structureSpinner = this.startSpinner(
-        this.language === 'zh-CN' ? '正在创建 OpenSpec 结构...' : 'Creating OpenSpec structure...'
+        this.messages.init.spinner.creatingStructure
       );
       await this.createDirectoryStructure(openspecPath);
       await this.generateFiles(openspecPath, config);
       structureSpinner.stopAndPersist({
         symbol: PALETTE.white('▌'),
-        text: PALETTE.white(this.language === 'zh-CN' ? 'OpenSpec 结构已创建' : 'OpenSpec structure created'),
+        text: PALETTE.white(this.messages.init.spinner.structureCreated),
       });
     } else {
       ora({ stream: process.stdout }).info(
         PALETTE.midGray(
-          this.language === 'zh-CN' 
-            ? 'ℹ OpenSpec 已初始化。跳过基础脚手架。'
-            : 'ℹ OpenSpec already initialized. Skipping base scaffolding.'
+          this.messages.init.spinner.skipScaffolding
         )
       );
     }
 
     // Step 2: Configure AI tools
     const toolSpinner = this.startSpinner(
-      this.language === 'zh-CN' ? '正在配置 AI 工具...' : 'Configuring AI tools...'
+      this.messages.init.spinner.configuringTools
     );
     const rootStubStatus = await this.configureAITools(
       projectPath,
