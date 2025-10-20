@@ -150,3 +150,9 @@ CLAUDE.md
 
 # Pnpm
 .pnpm-store/
+
+# IDE and Development Tools
+.cursor/
+.kilocode/
+.qoder/
+.spec-workflow/
