@@ -42,7 +42,8 @@ program
   .description('Initialize OpenSpec in your project')
   .option('--tools <tools>', toolsOptionDescription)
   .option('--language <language>', 'Set language for templates (en, zh-CN)', 'en')
-  .action(async (targetPath = '.', options?: { tools?: string; language?: string }) => {
+  .option('--lang <language>', 'Alias for --language')
+  .action(async (targetPath = '.', options?: { tools?: string; language?: string; lang?: string }) => {
     try {
       // Validate that the path is a valid directory
       const resolvedPath = path.resolve(targetPath);
@@ -65,7 +66,7 @@ program
       
       const initCommand = new InitCommand({
         tools: options?.tools,
-        language: options?.language,
+        language: options?.lang || options?.language,
       });
       await initCommand.execute(targetPath);
     } catch (error) {

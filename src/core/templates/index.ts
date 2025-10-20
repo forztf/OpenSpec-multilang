@@ -28,7 +28,10 @@ export class TemplateManager {
     ];
   }
 
-  static getClaudeTemplate(): string {
+  static getClaudeTemplate(language: string = 'en'): string {
+    if (language === 'zh' || language === 'zh-CN') {
+      return getAgentsRootStubTemplate(language);
+    }
     return claudeTemplate;
   }
 

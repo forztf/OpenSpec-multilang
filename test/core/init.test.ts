@@ -4,6 +4,28 @@ import path from 'path';
 import os from 'os';
 import { InitCommand } from '../../src/core/init.js';
 
+// Mock ora module
+const mockOraInstance = {
+  succeed: vi.fn(),
+  start: vi.fn().mockReturnThis(),
+  stop: vi.fn().mockReturnThis(),
+  stopAndPersist: vi.fn().mockReturnThis(),
+  info: vi.fn(),
+  text: '',
+};
+
+vi.mock('ora', () => ({
+  default: (options?: any) => {
+    if (options) {
+      return {
+        ...mockOraInstance,
+        start: vi.fn().mockReturnValue(mockOraInstance),
+      };
+    }
+    return mockOraInstance;
+  },
+}));
+
 const DONE = '__done__';
 
 type SelectionQueue = string[][];
@@ -914,6 +936,104 @@ describe('InitCommand', () => {
       queueSelections('claude', DONE);
       await expect(initCommand.execute(readOnlyDir)).rejects.toThrow(
         /Insufficient permissions/
+      );
+    });
+  });
+
+  describe('language support', () => {
+    it('should create English templates by default', async () => {
+      queueSelections('claude', DONE);
+
+      await initCommand.execute(testDir);
+
+      const agentsPath = path.join(testDir, 'openspec', 'AGENTS.md');
+      const projectPath = path.join(testDir, 'openspec', 'project.md');
+      const claudePath = path.join(testDir, 'CLAUDE.md');
+
+      expect(await fileExists(agentsPath)).toBe(true);
+      expect(await fileExists(projectPath)).toBe(true);
+      expect(await fileExists(claudePath)).toBe(true);
+
+      const agentsContent = await fs.readFile(agentsPath, 'utf-8');
+      const projectContent = await fs.readFile(projectPath, 'utf-8');
+      const claudeContent = await fs.readFile(claudePath, 'utf-8');
+
+      // Check for English content
+      expect(agentsContent).toContain('OpenSpec Instructions');
+      expect(projectContent).toContain('Project Context');
+      expect(claudeContent).toContain('These instructions are for AI assistants');
+    });
+
+    it('should create Chinese templates when language is zh-CN', async () => {
+      const chineseInitCommand = new InitCommand({ 
+        prompt: mockPrompt, 
+        language: 'zh-CN' 
+      });
+      queueSelections('claude', DONE);
+
+      await chineseInitCommand.execute(testDir);
+
+      const agentsPath = path.join(testDir, 'openspec', 'AGENTS.md');
+      const projectPath = path.join(testDir, 'openspec', 'project.md');
+      const claudePath = path.join(testDir, 'CLAUDE.md');
+
+      expect(await fileExists(agentsPath)).toBe(true);
+      expect(await fileExists(projectPath)).toBe(true);
+      expect(await fileExists(claudePath)).toBe(true);
+
+      const agentsContent = await fs.readFile(agentsPath, 'utf-8');
+      const projectContent = await fs.readFile(projectPath, 'utf-8');
+      const claudeContent = await fs.readFile(claudePath, 'utf-8');
+
+      // Check for Chinese content
+      expect(agentsContent).toContain('OpenSpec 指令');
+      expect(projectContent).toContain('上下文');
+      expect(claudeContent).toContain('AI 助手');
+    });
+
+    it('should throw error for unsupported language', () => {
+      expect(() => {
+        new InitCommand({ 
+          prompt: mockPrompt, 
+          language: 'fr' as any 
+        });
+      }).toThrow('Unsupported language: fr. Supported languages: en, zh-CN');
+    });
+
+    it('should display localized success messages', async () => {
+      // Clear any previous calls
+      mockOraInstance.succeed.mockClear();
+      
+      // Test English messages
+      const englishInitCommand = new InitCommand({ 
+        prompt: mockPrompt, 
+        language: 'en' 
+      });
+      queueSelections('claude', DONE);
+      await englishInitCommand.execute(testDir);
+
+      // Check that English success message was displayed via ora
+      expect(mockOraInstance.succeed).toHaveBeenCalledWith(
+        expect.stringContaining('OpenSpec initialized successfully!')
+      );
+
+      mockOraInstance.succeed.mockClear();
+
+      // Clean up for next test
+      await fs.rm(testDir, { recursive: true, force: true });
+      await fs.mkdir(testDir, { recursive: true });
+
+      // Test Chinese messages
+      const chineseInitCommand = new InitCommand({ 
+        prompt: mockPrompt, 
+        language: 'zh-CN' 
+      });
+      queueSelections('claude', DONE);
+      await chineseInitCommand.execute(testDir);
+
+      // Check that Chinese success message was displayed via ora
+      expect(mockOraInstance.succeed).toHaveBeenCalledWith(
+        expect.stringContaining('OpenSpec 初始化成功！')
       );
     });
   });

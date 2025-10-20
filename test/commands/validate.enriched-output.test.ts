@@ -22,8 +22,13 @@ describe('validate command enriched human output', () => {
     const changeContent = `# Test Change\n\n## Why\nThis is a sufficiently long explanation to pass the why length requirement for validation purposes.\n\n## What Changes\nThere are changes proposed, but no delta specs provided yet.`;
     const changeId = 'c-next-steps';
     const changePath = path.join(changesDir, changeId);
-    execSync(`mkdir -p ${changePath}`);
-    execSync(`bash -lc "cat > ${path.join(changePath, 'proposal.md')} <<'EOF'\n${changeContent}\nEOF"`);
+    
+    // Use Node.js fs module for cross-platform compatibility
+    const fs = require('fs');
+    fs.mkdirSync(changePath, { recursive: true });
+    
+    const proposalPath = path.join(changePath, 'proposal.md');
+    fs.writeFileSync(proposalPath, changeContent);
 
     const originalCwd = process.cwd();
     try {

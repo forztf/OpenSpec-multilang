@@ -23,6 +23,12 @@ import {
   AIToolOption,
 } from './config.js';
 import { PALETTE } from './styles/palette.js';
+import { 
+  getLocalizedMessages, 
+  formatMessage, 
+  isSupportedLanguage,
+  type SupportedLanguage 
+} from './localization.js';
 
 const PROGRESS_SPINNER = {
   interval: 80,
@@ -376,12 +382,24 @@ type InitCommandOptions = {
 export class InitCommand {
   private readonly prompt: ToolSelectionPrompt;
   private readonly toolsArg?: string;
-  private readonly language: string;
+  private readonly language: SupportedLanguage;
+  private readonly messages: ReturnType<typeof getLocalizedMessages>;
 
   constructor(options: InitCommandOptions = {}) {
     this.prompt = options.prompt ?? ((config) => toolSelectionWizard(config));
     this.toolsArg = options.tools;
-    this.language = options.language ?? 'en';
+    
+    // 验证语言选项
+    const language = options.language ?? 'en';
+    if (!isSupportedLanguage(language)) {
+      const errorMessage = formatMessage(
+        getLocalizedMessages('en').errors.unsupportedLanguage,
+        { language }
+      );
+      throw new Error(errorMessage);
+    }
+    this.language = language;
+    this.messages = getLocalizedMessages(language);
   }
 
   async execute(targetPath: string): Promise<void> {
@@ -749,41 +767,41 @@ export class InitCommand {
   ): void {
     console.log(); // Empty line for spacing
     const successHeadline = extendMode
-      ? 'OpenSpec tool configuration updated!'
-      : 'OpenSpec initialized successfully!';
+      ? this.messages.init.successHeadline.update
+      : this.messages.init.success;
     ora().succeed(PALETTE.white(successHeadline));
 
     console.log();
-    console.log(PALETTE.lightGray('Tool summary:'));
+    console.log(PALETTE.lightGray(this.messages.init.toolSummary));
     const summaryLines = [
       rootStubStatus === 'created'
         ? `${PALETTE.white('▌')} ${PALETTE.white(
-            'Root AGENTS.md stub created for other assistants'
+            this.messages.init.rootStubCreated
           )}`
         : null,
       rootStubStatus === 'updated'
         ? `${PALETTE.lightGray('▌')} ${PALETTE.lightGray(
-            'Root AGENTS.md stub refreshed for other assistants'
+            this.messages.init.rootStubUpdated
           )}`
         : null,
       created.length
         ? `${PALETTE.white('▌')} ${PALETTE.white(
-            'Created:'
+            this.messages.init.created
           )} ${this.formatToolNames(created)}`
         : null,
       refreshed.length
         ? `${PALETTE.lightGray('▌')} ${PALETTE.lightGray(
-            'Refreshed:'
+            this.messages.init.refreshed
           )} ${this.formatToolNames(refreshed)}`
         : null,
       skippedExisting.length
         ? `${PALETTE.midGray('▌')} ${PALETTE.midGray(
-            'Skipped (already configured):'
+            this.messages.init.skippedExisting
           )} ${this.formatToolNames(skippedExisting)}`
         : null,
       skipped.length
         ? `${PALETTE.darkGray('▌')} ${PALETTE.darkGray(
-            'Skipped:'
+            this.messages.init.skipped
           )} ${this.formatToolNames(skipped)}`
         : null,
     ].filter((line): line is string => Boolean(line));
@@ -793,47 +811,34 @@ export class InitCommand {
 
     console.log();
     console.log(
-      PALETTE.midGray(
-        'Use `openspec update` to refresh shared OpenSpec instructions in the future.'
-      )
+      PALETTE.midGray(this.messages.init.updateCommand)
     );
 
     // Get the selected tool name(s) for display
     const toolName = this.formatToolNames(selectedTools);
 
     console.log();
-    console.log(`Next steps - Copy these prompts to ${toolName}:`);
+    console.log(formatMessage(this.messages.init.nextSteps.title, { toolName }));
     console.log(
       chalk.gray('────────────────────────────────────────────────────────────')
     );
-    console.log(PALETTE.white('1. Populate your project context:'));
+    console.log(PALETTE.white(this.messages.init.nextSteps.populateContext.title));
     console.log(
       PALETTE.lightGray(
-        '   "Please read openspec/project.md and help me fill it out'
+        `   ${this.messages.init.nextSteps.populateContext.description}\n`
       )
     );
+    console.log(PALETTE.white(this.messages.init.nextSteps.createProposal.title));
     console.log(
       PALETTE.lightGray(
-        '    with details about my project, tech stack, and conventions"\n'
+        `   ${this.messages.init.nextSteps.createProposal.description}\n`
       )
     );
-    console.log(PALETTE.white('2. Create your first change proposal:'));
+    console.log(PALETTE.white(this.messages.init.nextSteps.learnWorkflow.title));
     console.log(
       PALETTE.lightGray(
-        '   "I want to add [YOUR FEATURE HERE]. Please create an'
+        `   ${this.messages.init.nextSteps.learnWorkflow.description}`
       )
-    );
-    console.log(
-      PALETTE.lightGray('    OpenSpec change proposal for this feature"\n')
-    );
-    console.log(PALETTE.white('3. Learn the OpenSpec workflow:'));
-    console.log(
-      PALETTE.lightGray(
-        '   "Please explain the OpenSpec workflow from openspec/AGENTS.md'
-      )
-    );
-    console.log(
-      PALETTE.lightGray('    and how I should work with you on this project"')
     );
     console.log(
       PALETTE.darkGray(
@@ -844,9 +849,9 @@ export class InitCommand {
     // Codex heads-up: prompts installed globally
     const selectedToolIds = new Set(selectedTools.map((t) => t.value));
     if (selectedToolIds.has('codex')) {
-      console.log(PALETTE.white('Codex setup note'));
+      console.log(PALETTE.white(this.messages.init.codexNote.title));
       console.log(
-        PALETTE.midGray('Prompts installed to ~/.codex/prompts (or $CODEX_HOME/prompts).')
+        PALETTE.midGray(this.messages.init.codexNote.description)
       );
       console.log();
     }

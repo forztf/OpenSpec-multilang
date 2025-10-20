@@ -1,5 +1,11 @@
 # @fission-ai/openspec
 
+## 1.0.0
+
+### Major Changes
+
+- 生成的模板文件和指令提供多种语言，以适应非英语开发者
+
 ## 0.12.0
 
 ### Minor Changes
