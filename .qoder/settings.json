@@ -1,0 +1,14 @@
+{
+  "permissions": {
+    "ask": [
+      "Read(!H:\\code\\openspec/**)",
+      "Edit(!H:\\code\\openspec/**)"
+    ],
+    "allow": [
+      "Read(H:\\code\\openspec/**)",
+      "Edit(H:\\code\\openspec/**)"
+    ]
+  },
+  "memoryImport": {},
+  "monitoring": {}
+}

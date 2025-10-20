@@ -1,3 +1,5 @@
+import { agentsRootStubTemplateZh } from './agents-root-stub-zh.js';
+
 export const agentsRootStubTemplate = `# OpenSpec Instructions
 
 These instructions are for AI assistants working in this project.
@@ -14,3 +16,10 @@ Use \`@/openspec/AGENTS.md\` to learn:
 
 Keep this managed block so 'openspec update' can refresh the instructions.
 `;
+
+export function getAgentsRootStubTemplate(language: string = 'en'): string {
+  if (language === 'zh' || language === 'zh-CN') {
+    return agentsRootStubTemplateZh;
+  }
+  return agentsRootStubTemplate;
+}

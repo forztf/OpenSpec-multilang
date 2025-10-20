@@ -370,15 +370,18 @@ const toolSelectionWizard = createPrompt<string[], ToolWizardConfig>(
 type InitCommandOptions = {
   prompt?: ToolSelectionPrompt;
   tools?: string;
+  language?: string;
 };
 
 export class InitCommand {
   private readonly prompt: ToolSelectionPrompt;
   private readonly toolsArg?: string;
+  private readonly language: string;
 
   constructor(options: InitCommandOptions = {}) {
     this.prompt = options.prompt ?? ((config) => toolSelectionWizard(config));
     this.toolsArg = options.tools;
+    this.language = options.language ?? 'en';
   }
 
   async execute(targetPath: string): Promise<void> {
@@ -680,7 +683,7 @@ export class InitCommand {
       // Could be enhanced with prompts for project details
     };
 
-    const templates = TemplateManager.getTemplates(context);
+    const templates = TemplateManager.getTemplates(context, this.language);
 
     for (const template of templates) {
       const filePath = path.join(openspecPath, template.path);
@@ -706,7 +709,7 @@ export class InitCommand {
     for (const toolId of toolIds) {
       const configurator = ToolRegistry.get(toolId);
       if (configurator && configurator.isAvailable) {
-        await configurator.configure(projectPath, openspecDir);
+        await configurator.configure(projectPath, openspecDir, this.language);
       }
 
       const slashConfigurator = SlashCommandRegistry.get(toolId);
@@ -730,7 +733,7 @@ export class InitCommand {
     const stubPath = path.join(projectPath, configurator.configFileName);
     const existed = await FileSystemUtils.fileExists(stubPath);
 
-    await configurator.configure(projectPath, openspecDir);
+    await configurator.configure(projectPath, openspecDir, this.language);
 
     return existed ? 'updated' : 'created';
   }
