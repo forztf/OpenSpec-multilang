@@ -446,6 +446,10 @@ export class InitCommand {
         text: PALETTE.white(this.messages.init.spinner.structureCreated),
       });
     } else {
+      // In extend mode, we still need to update core files like AGENTS.md
+      // to match the selected language
+      await this.generateFiles(openspecPath, config);
+      
       ora({ stream: process.stdout }).info(
         PALETTE.midGray(
           this.messages.init.spinner.skipScaffolding
@@ -585,6 +589,8 @@ export class InitCommand {
   private async promptForLanguageSelection(): Promise<void> {
     const { select } = await import('@inquirer/prompts');
     
+    console.log(`[DEBUG] Current language before selection: ${this.language}`);
+    
     const languageChoice = await select({
       message: this.messages.init.languageSelection.prompt,
       choices: [
@@ -602,9 +608,13 @@ export class InitCommand {
       default: 'en'
     });
 
+    console.log(`[DEBUG] User selected language: ${languageChoice}`);
+
     // Update the language and messages
     this.language = languageChoice as SupportedLanguage;
     this.messages = getLocalizedMessages(languageChoice as SupportedLanguage);
+    
+    console.log(`[DEBUG] Language after update: ${this.language}`);
   }
 
   private async promptForAITools(
@@ -734,7 +744,12 @@ export class InitCommand {
       // Could be enhanced with prompts for project details
     };
 
+    console.log(`[DEBUG] Generating files with language: ${this.language}`);
+    
     const templates = TemplateManager.getTemplates(context, this.language);
+    
+    console.log(`[DEBUG] Number of templates: ${templates.length}`);
+    console.log(`[DEBUG] Template paths: ${templates.map(t => t.path).join(', ')}`);
 
     for (const template of templates) {
       const filePath = path.join(openspecPath, template.path);
@@ -743,6 +758,9 @@ export class InitCommand {
           ? template.content(context)
           : template.content;
 
+      console.log(`[DEBUG] Writing template to: ${filePath}`);
+      console.log(`[DEBUG] Template content preview: ${content.substring(0, 100)}...`);
+      
       await FileSystemUtils.writeFile(filePath, content);
     }
   }
