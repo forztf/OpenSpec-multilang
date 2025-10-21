@@ -90,7 +90,7 @@ describe('openspec CLI e2e basics', () => {
         env: { CODEX_HOME: codexHome },
       });
       expect(result.exitCode).toBe(0);
-      expect(result.stdout).toContain('Tool summary:');
+      expect(result.stdout).toContain('Tool configurations:');
 
       // Check that tool configurations were created
       const claudePath = path.join(emptyProjectDir, 'CLAUDE.md');
@@ -106,7 +106,7 @@ describe('openspec CLI e2e basics', () => {
 
       const result = await runCLI(['init', '--tools', 'claude'], { cwd: emptyProjectDir });
       expect(result.exitCode).toBe(0);
-      expect(result.stdout).toContain('Tool summary:');
+      expect(result.stdout).toContain('Tool configurations:');
 
       const claudePath = path.join(emptyProjectDir, 'CLAUDE.md');
       const cursorProposal = path.join(emptyProjectDir, '.cursor/commands/openspec-proposal.md');
@@ -121,7 +121,7 @@ describe('openspec CLI e2e basics', () => {
 
       const result = await runCLI(['init', '--tools', 'none'], { cwd: emptyProjectDir });
       expect(result.exitCode).toBe(0);
-      expect(result.stdout).toContain('Tool summary:');
+      expect(result.stdout).toContain('Tool configurations:');
 
       const claudePath = path.join(emptyProjectDir, 'CLAUDE.md');
       const cursorProposal = path.join(emptyProjectDir, '.cursor/commands/openspec-proposal.md');
