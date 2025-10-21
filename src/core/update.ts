@@ -69,7 +69,7 @@ export class UpdateCommand {
           );
         }
 
-        await configurator.configure(resolvedProjectPath, openspecPath);
+        await configurator.configure(resolvedProjectPath, openspecPath, languageResult.language);
         updatedFiles.push(configurator.configFileName);
 
         if (!fileExists) {
