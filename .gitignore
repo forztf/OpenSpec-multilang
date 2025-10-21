@@ -157,5 +157,8 @@ CLAUDE.md
 .qoder/
 .spec-workflow/
 .trae/
+.augment/
+.amazonq/
+
 detailed-test-report.txt
 test-results.json
