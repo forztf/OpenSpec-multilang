@@ -95,7 +95,7 @@ program
 program
   .command('update [path]')
   .description('Update OpenSpec instruction files')
-  .option('--language <language>', 'Set language for templates (en, zh-CN)', 'en')
+  .option('--language <language>', 'Set language for templates (en, zh-CN)')
   .action(async (targetPath = '.', options?: { language?: string }) => {
     try {
       // Validate language option if provided

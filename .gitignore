@@ -157,3 +157,5 @@ CLAUDE.md
 .qoder/
 .spec-workflow/
 .trae/
+detailed-test-report.txt
+test-results.json
