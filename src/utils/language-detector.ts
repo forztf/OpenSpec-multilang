@@ -1,5 +1,6 @@
 import { readFileSync, existsSync } from 'fs';
 import { join } from 'path';
+import { franc } from 'franc';
 
 /**
  * 支持的语言类型
@@ -149,7 +150,7 @@ export class LanguageDetector {
 
   /**
    * 从现有文件内容推断语言
-   * 检查 openspec/AGENTS.md 文件是否包含中文字符
+   * 使用 franc 库检测文件内容的语言
    * 
    * @param projectPath 项目根目录路径
    * @returns 检测到的语言，如果无法确定则返回 null
@@ -164,11 +165,27 @@ export class LanguageDetector {
 
       const content = readFileSync(agentsPath, 'utf-8');
       
+      // 使用 franc 库检测语言
+      const detectedLanguage = franc(content);
+      
+      // 将 franc 的语言代码映射到我们支持的语言
+      if (detectedLanguage === 'cmn' || detectedLanguage === 'chi') {
+        // cmn: 中文（普通话），chi: 中文（通用）
+        return 'zh-CN';
+      }
+      
+      if (detectedLanguage === 'eng') {
+        // eng: 英文
+        return 'en-US';
+      }
+      
+      // 如果 franc 无法确定语言（返回 'und'）或检测为其他语言，
+      // 回退到原有的中文字符检测作为补充
       if (this.containsChinese(content)) {
         return 'zh-CN';
       }
 
-      // 如果文件存在但不包含中文，推断为英文项目
+      // 如果文件存在但无法确定语言，推断为英文项目
       return 'en-US';
     } catch (error) {
       // 文件读取失败，无法确定语言
@@ -194,6 +211,7 @@ export class LanguageDetector {
 
   /**
    * 检测文本是否包含中文字符
+   * 作为 franc 库的补充，用于处理混合语言或检测失败的情况
    * 
    * @param text 要检测的文本
    * @returns 是否包含中文字符
