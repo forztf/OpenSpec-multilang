@@ -10,7 +10,7 @@
 //   `changeset publish` triggers `prepublishOnly` (also builds here). This
 //   means an explicit build is not strictly necessary for the guard.
 
-import { execFileSync } from 'child_process';
+import { execFileSync, spawnSync } from 'child_process';
 import { mkdtempSync, readFileSync, rmSync, writeFileSync } from 'fs';
 import { tmpdir } from 'os';
 import path from 'path';
@@ -21,10 +21,27 @@ function log(msg) {
 }
 
 function run(cmd, args, opts = {}) {
-  // On Windows, use npm.cmd instead of npm for proper execution
+  // On Windows, use spawn with shell option for better compatibility
   if (cmd === 'npm' && process.platform === 'win32') {
-    cmd = 'npm.cmd';
+    // Use spawn with shell option for better Windows compatibility
+    const result = spawnSync('npm', args, { 
+      encoding: 'utf-8', 
+      stdio: ['ignore', 'pipe', 'pipe'], 
+      shell: true,
+      ...opts 
+    });
+    
+    if (result.error) {
+      throw result.error;
+    }
+    
+    if (result.status !== 0) {
+      throw new Error(`Command failed with exit code ${result.status}: ${result.stderr}`);
+    }
+    
+    return result.stdout;
   }
+  
   return execFileSync(cmd, args, { encoding: 'utf-8', stdio: ['ignore', 'pipe', 'pipe'], ...opts });
 }
 

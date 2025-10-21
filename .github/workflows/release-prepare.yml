@@ -14,7 +14,7 @@ concurrency:
 
 jobs:
   prepare:
-    if: github.repository == 'Fission-AI/OpenSpec'
+    if: github.repository == 'forztf/OpenSpec-multilang'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -30,7 +30,7 @@ jobs:
           node-version: '20'
           cache: 'pnpm'
           registry-url: 'https://registry.npmjs.org'
-          scope: '@fission-ai'
+          scope: '@forztf'
           always-auth: true
 
       - run: pnpm install --frozen-lockfile

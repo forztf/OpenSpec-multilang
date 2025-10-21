@@ -1,5 +1,11 @@
 # @fission-ai/openspec
 
+## 1.0.1
+
+### Patch Changes
+
+- Add Trae IDE and Chinese template Support
+
 ## 1.0.0
 
 ### Major Changes
