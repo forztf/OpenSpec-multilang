@@ -464,7 +464,7 @@ export class InitCommand {
     );
     toolSpinner.stopAndPersist({
       symbol: PALETTE.white('▌'),
-      text: PALETTE.white(this.language === 'zh-CN' ? 'AI 工具已配置' : 'AI tools configured'),
+      text: PALETTE.white(this.messages.init.spinner.toolsConfigured),
     });
 
     // Success message
@@ -498,7 +498,7 @@ export class InitCommand {
   ): Promise<OpenSpecConfig> {
     // Only prompt for language selection if no language was provided via CLI
     // and we're not in a test environment (where language should be explicitly set)
-    if (!this.language && process.env.NODE_ENV !== 'test') {
+    if (this.language === 'en' && !this.toolsArg && process.env.NODE_ENV !== 'test') {
       await this.promptForLanguageSelection();
     }
     
@@ -586,15 +586,15 @@ export class InitCommand {
     const { select } = await import('@inquirer/prompts');
     
     const languageChoice = await select({
-      message: 'Select your preferred language / 选择您的首选语言:',
+      message: this.messages.init.languageSelection.prompt,
       choices: [
         {
-          name: 'English',
+          name: this.messages.init.languageSelection.english,
           value: 'en',
           description: 'Use English templates and messages'
         },
         {
-          name: '中文 (Chinese)',
+          name: this.messages.init.languageSelection.chinese,
           value: 'zh-CN',
           description: '使用中文模板和消息'
         }

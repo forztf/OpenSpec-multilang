@@ -29,6 +29,11 @@ export interface LocalizedMessages {
     spinner: {
       creating: string;
       created: string;
+      creatingStructure: string;
+      structureCreated: string;
+      skipScaffolding: string;
+      configuringTools: string;
+      toolsConfigured: string;
     };
     nextSteps: {
       title: string;
@@ -82,6 +87,11 @@ const messages: Record<SupportedLanguage, LocalizedMessages> = {
       spinner: {
         creating: 'Creating OpenSpec structure...',
         created: 'OpenSpec structure created',
+        creatingStructure: 'Creating directory structure...',
+        structureCreated: 'Directory structure created',
+        skipScaffolding: 'Skipping scaffolding (extend mode)',
+        configuringTools: 'Configuring AI tools...',
+        toolsConfigured: 'AI tools configured',
       },
       nextSteps: {
         title: 'Next steps - Copy these prompts to {toolName}:',
@@ -133,6 +143,11 @@ const messages: Record<SupportedLanguage, LocalizedMessages> = {
       spinner: {
         creating: '正在创建 OpenSpec 结构...',
         created: 'OpenSpec 结构已创建',
+        creatingStructure: '正在创建目录结构...',
+        structureCreated: '目录结构已创建',
+        skipScaffolding: '跳过脚手架（扩展模式）',
+        configuringTools: '正在配置 AI 工具...',
+        toolsConfigured: 'AI 工具已配置',
       },
       nextSteps: {
         title: '下一步 - 将这些提示复制到 {toolName}：',

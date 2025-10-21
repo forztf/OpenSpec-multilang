@@ -43,7 +43,7 @@ program
   .description('Initialize OpenSpec in your project')
   .option('--tools <tools>', toolsOptionDescription)
   .option('--language <language>', 'Set language for templates (en, zh-CN)', 'en')
-  .option('--lang <language>', 'Alias for --language')
+  .option('--lang <language>', 'Alias for --language (en, zh-CN)')
   .action(async (targetPath = '.', options?: { tools?: string; language?: string; lang?: string }) => {
     try {
       // Validate language option
@@ -95,7 +95,7 @@ program
 program
   .command('update [path]')
   .description('Update OpenSpec instruction files')
-  .option('--language <language>', 'Set language for templates (en, zh-CN)')
+  .option('--language <language>', 'Set language for templates (en, zh-CN)', 'en')
   .action(async (targetPath = '.', options?: { language?: string }) => {
     try {
       // Validate language option if provided

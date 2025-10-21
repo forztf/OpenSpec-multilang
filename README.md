@@ -138,10 +138,24 @@ Run the initialization:
 openspec init
 ```
 
+**Language Support:**
+OpenSpec supports multiple languages for templates and messages. You can specify your preferred language during initialization:
+
+```bash
+# Initialize with English templates (default)
+openspec init --language en
+
+# Initialize with Chinese templates
+openspec init --language zh-CN
+```
+
+If no language is specified, OpenSpec will prompt you to choose between English and Chinese during the interactive setup.
+
 **What happens during initialization:**
 - You'll be prompted to pick any natively supported AI tools (Claude Code, Cursor, OpenCode, etc.); other assistants always rely on the shared `AGENTS.md` stub
 - OpenSpec automatically configures slash commands for the tools you choose and always writes a managed `AGENTS.md` hand-off at the project root
 - A new `openspec/` directory structure is created in your project
+- Templates and messages are generated in your selected language
 
 **After setup:**
 - Primary AI tools can trigger `/openspec` workflows without additional configuration
@@ -338,6 +352,15 @@ Run `openspec update` whenever someone switches tools so your agents pick up the
    ```
 2. **Refresh agent instructions**
    - Run `openspec update` inside each project to regenerate AI guidance and ensure the latest slash commands are active.
+   - **Language consistency**: The update command automatically detects your project's language from existing files and maintains consistency. You can also explicitly specify the language:
+     ```bash
+     # Update with automatic language detection
+     openspec update
+     
+     # Force update with specific language
+     openspec update --language zh-CN  # Chinese
+     openspec update --language en     # English
+     ```
 
 ## Contributing
 
