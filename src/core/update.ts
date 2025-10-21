@@ -36,9 +36,14 @@ export class UpdateCommand {
 
     // 3. Update AGENTS.md with language-appropriate template
     const agentsPath = path.join(openspecPath, 'AGENTS.md');
-    const agentsTemplate = TemplateManager.getAgentsStandardTemplate(languageResult.language);
-
-    await FileSystemUtils.writeFile(agentsPath, agentsTemplate);
+    const templates = TemplateManager.getTemplates({}, languageResult.language);
+    const agentsTemplate = templates.find(t => t.path === 'AGENTS.md')?.content;
+    
+    if (typeof agentsTemplate === 'string') {
+      await FileSystemUtils.writeFile(agentsPath, agentsTemplate);
+    } else {
+      throw new Error('AGENTS.md template not found or invalid');
+    }
 
     // 4. Update existing AI tool configuration files only
     const configurators = ToolRegistry.getAll();
