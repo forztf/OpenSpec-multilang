@@ -29,11 +29,9 @@ export class UpdateCommand {
       enableEnvDetection: true
     });
 
-    // Only log language detection in verbose mode or when explicitly set
-    if (options.language || process.env.OPENSPEC_VERBOSE) {
-      console.log(`Language detection: ${languageResult.language} (${languageResult.source}${languageResult.details ? ': ' + languageResult.details : ''})`);
-    }
-
+    // log language detection
+    console.log(`Language detection: ${languageResult.language} (${languageResult.source}${languageResult.details ? ': ' + languageResult.details : ''})`);
+    
     // 3. Update AGENTS.md with language-appropriate template
     const agentsPath = path.join(openspecPath, 'AGENTS.md');
     const templates = TemplateManager.getTemplates({}, languageResult.language);
