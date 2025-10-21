@@ -914,4 +914,61 @@ Old content
     errorSpy.mockRestore();
     writeSpy.mockRestore();
   });
+
+  it('should update only existing Trae project rules file', async () => {
+    const traePath = path.join(testDir, '.trae', 'rules', 'project_rules.md');
+    await fs.mkdir(path.dirname(traePath), { recursive: true });
+    const initialContent = `# Custom header
+
+Intro paragraph.
+
+<!-- OPENSPEC:START -->
+Old OpenSpec content
+<!-- OPENSPEC:END -->
+
+Footer text.`;
+    await fs.writeFile(traePath, initialContent);
+
+    const consoleSpy = vi.spyOn(console, 'log');
+
+    await updateCommand.execute(testDir);
+
+    const updatedContent = await fs.readFile(traePath, 'utf-8');
+    expect(updatedContent).toContain('<!-- OPENSPEC:START -->');
+    expect(updatedContent).toContain('<!-- OPENSPEC:END -->');
+    expect(updatedContent).toContain('@/openspec/AGENTS.md');
+    expect(updatedContent).toContain('openspec validate --strict');
+    expect(updatedContent).toContain('# Custom header');
+    expect(updatedContent).toContain('Intro paragraph.');
+    expect(updatedContent).toContain('Footer text.');
+    expect(updatedContent).not.toContain('Old OpenSpec content');
+
+    const logMessages = consoleSpy.mock.calls.map(call => call[0]);
+    const updateMessage = logMessages.find(msg => msg.includes('Updated OpenSpec instructions'));
+    expect(updateMessage).toBeDefined();
+    consoleSpy.mockRestore();
+  });
+
+  it('should skip updating Trae project rules when no markers exist', async () => {
+    const traePath = path.join(testDir, '.trae', 'rules', 'project_rules.md');
+    await fs.mkdir(path.dirname(traePath), { recursive: true });
+    const initialContent = `# Custom header
+
+This file is user-managed without OpenSpec markers.`;
+    await fs.writeFile(traePath, initialContent);
+
+    await updateCommand.execute(testDir);
+
+    const afterContent = await fs.readFile(traePath, 'utf-8');
+    expect(afterContent).toBe(initialContent);
+  });
+
+  it('should not create Trae project rules if it does not exist', async () => {
+    const traePath = path.join(testDir, '.trae', 'rules', 'project_rules.md');
+
+    await updateCommand.execute(testDir);
+
+    const exists = await FileSystemUtils.fileExists(traePath);
+    expect(exists).toBe(false);
+  });
 });

@@ -95,8 +95,10 @@ describe('openspec CLI e2e basics', () => {
       // Check that tool configurations were created
       const claudePath = path.join(emptyProjectDir, 'CLAUDE.md');
       const cursorProposal = path.join(emptyProjectDir, '.cursor/commands/openspec-proposal.md');
+      const traeRules = path.join(emptyProjectDir, '.trae/rules/project_rules.md');
       expect(await fileExists(claudePath)).toBe(true);
       expect(await fileExists(cursorProposal)).toBe(true);
+      expect(await fileExists(traeRules)).toBe(true);
     });
 
     it('initializes with --tools list option', async () => {

@@ -11,6 +11,13 @@ Trae AI 是一个新兴的 AI 驱动的 IDE，具有独特的项目规则管理�
 - 在初始化和更新过程中支持 Trae IDE 的项目规则文件管理
 - 为 Trae IDE 提供专门的 OpenSpec 指令模板
 
+## RootAgents
+
+- Trae 的项目规则路径为 `.trae\rules\project_rules.md`
+- 通过在 `project_rules.md` 注入 OpenSpec 管理标记块（`<!-- OPENSPEC:START -->`/`<!-- OPENSPEC:END -->`）实现 RootAgents 集成
+- 初始化与更新仅替换受管块内的内容，保留块外的用户自定义规则
+- 受管块提供 Trae 的 OpenSpec 指令交接，指向 `@/openspec/AGENTS.md` 并概述工作流
+
 ## Impact
 
 - 受影响的规范：cli-init, cli-update

@@ -5,6 +5,7 @@ import { projectTemplateZh } from './project-template-zh.js';
 import { claudeTemplate } from './claude-template.js';
 import { getAgentsRootStubTemplate } from './agents-root-stub.js';
 import { getSlashCommandBody, SlashCommandId } from './slash-command-templates.js';
+import { getTraeProjectRulesTemplate } from './trae-project-rules.js';
 
 export interface Template {
   path: string;
@@ -37,6 +38,10 @@ export class TemplateManager {
 
   static getAgentsStandardTemplate(language: string = 'en'): string {
     return getAgentsRootStubTemplate(language);
+  }
+
+  static getTraeProjectRulesTemplate(language: string = 'en'): string {
+    return getTraeProjectRulesTemplate(language);
   }
 
   static getSlashCommandBody(id: SlashCommandId): string {

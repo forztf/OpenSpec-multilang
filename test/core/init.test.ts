@@ -837,10 +837,12 @@ describe('InitCommand', () => {
         testDir,
         '.windsurf/workflows/openspec-proposal.md'
       );
+      const traeRules = path.join(testDir, '.trae', 'rules', 'project_rules.md');
 
       expect(await fileExists(claudePath)).toBe(true);
       expect(await fileExists(cursorProposal)).toBe(true);
       expect(await fileExists(windsurfProposal)).toBe(true);
+      expect(await fileExists(traeRules)).toBe(true);
     });
 
     it('should select specific tools with --tools option', async () => {
@@ -861,6 +863,21 @@ describe('InitCommand', () => {
       expect(await fileExists(claudePath)).toBe(true);
       expect(await fileExists(cursorProposal)).toBe(true);
       expect(await fileExists(windsurfProposal)).toBe(false); // Not selected
+    });
+
+    it('should configure Trae IDE with --tools trae option', async () => {
+      const nonInteractiveCommand = new InitCommand({ tools: 'trae' });
+
+      await nonInteractiveCommand.execute(testDir);
+
+      const traeRules = path.join(testDir, '.trae', 'rules', 'project_rules.md');
+      expect(await fileExists(traeRules)).toBe(true);
+
+      const content = await fs.readFile(traeRules, 'utf-8');
+      expect(content).toContain('<!-- OPENSPEC:START -->');
+      expect(content).toContain('<!-- OPENSPEC:END -->');
+      expect(content).toContain('@/openspec/AGENTS.md');
+      expect(content).toContain('openspec validate --strict');
     });
 
     it('should skip tool configuration with --tools none option', async () => {

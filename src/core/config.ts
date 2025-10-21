@@ -28,5 +28,6 @@ export const AI_TOOLS: AIToolOption[] = [
   { name: 'Codex', value: 'codex', available: true, successLabel: 'Codex' },
   { name: 'GitHub Copilot', value: 'github-copilot', available: true, successLabel: 'GitHub Copilot' },
   { name: 'Amazon Q Developer', value: 'amazon-q', available: true, successLabel: 'Amazon Q Developer' },
+  { name: 'Trae IDE', value: 'trae', available: true, successLabel: 'Trae IDE' },
   { name: 'AGENTS.md (works with Amp, VS Code, …)', value: 'agents', available: false, successLabel: 'your AGENTS.md-compatible assistant' }
 ];
