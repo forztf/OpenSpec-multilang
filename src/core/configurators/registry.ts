@@ -1,5 +1,7 @@
 import { ToolConfigurator } from './base.js';
 import { ClaudeConfigurator } from './claude.js';
+import { ClineConfigurator } from './cline.js';
+import { CodeBuddyConfigurator } from './codebuddy.js';
 import { AgentsStandardConfigurator } from './agents.js';
 import { TraeConfigurator } from './trae.js';
 
@@ -8,10 +10,14 @@ export class ToolRegistry {
 
   static {
     const claudeConfigurator = new ClaudeConfigurator();
+    const clineConfigurator = new ClineConfigurator();
+    const codeBuddyConfigurator = new CodeBuddyConfigurator();
     const agentsConfigurator = new AgentsStandardConfigurator();
     const traeConfigurator = new TraeConfigurator();
     // Register with the ID that matches the checkbox value
     this.tools.set('claude', claudeConfigurator);
+    this.tools.set('cline', clineConfigurator);
+    this.tools.set('codebuddy', codeBuddyConfigurator);
     this.tools.set('agents', agentsConfigurator);
     this.tools.set('trae', traeConfigurator);
   }
