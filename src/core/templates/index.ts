@@ -3,6 +3,7 @@ import { agentsTemplateZh } from './agents-template-zh.js';
 import { projectTemplate, ProjectContext } from './project-template.js';
 import { projectTemplateZh } from './project-template-zh.js';
 import { claudeTemplate } from './claude-template.js';
+import { clineTemplate } from './cline-template.js';
 import { getAgentsRootStubTemplate } from './agents-root-stub.js';
 import { getSlashCommandBody, SlashCommandId } from './slash-command-templates.js';
 import { getTraeProjectRulesTemplate } from './trae-project-rules.js';
@@ -34,6 +35,14 @@ export class TemplateManager {
       return getAgentsRootStubTemplate(language);
     }
     return claudeTemplate;
+  }
+
+  static getClineTemplate(): string {
+    return clineTemplate;
+  }
+
+  static getClineTemplate(): string {
+    return clineTemplate;
   }
 
   static getAgentsStandardTemplate(language: string = 'en'): string {
